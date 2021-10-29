@@ -119,7 +119,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Converters\TodoTypeConverter.cs" />
     <Compile Include="Dialogs\TodoItemDialog.xaml.cs">
       <DependentUpon>TodoItemDialog.xaml</DependentUpon>
     </Compile>

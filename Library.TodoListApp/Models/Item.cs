@@ -12,11 +12,8 @@ namespace Library.TodoListApp.Models
             public const string MEDIUM = "Medium";
             public const string HIGH = "High";
         }
-        
-        public string TodoType
-        {
-            get => "Item";
-        }
+        public virtual string ItemSpecificProps { get; set; }
+        public virtual string TodoType => "Item";
         public TodoItem() => Id = Guid.NewGuid().ToString();
         public TodoItem(string name, string description, string priority = PriorityType.LOW)
         {
@@ -33,14 +30,19 @@ namespace Library.TodoListApp.Models
         {
             get
             {
-                if (Priority == PriorityType.HIGH) return "#dc3545";
-                if (Priority == PriorityType.MEDIUM) return "#ffc107";
-                return "#007bff";
+                switch (Priority)
+                {
+                    case PriorityType.HIGH:
+                        return "#dc3545";
+                    case PriorityType.MEDIUM:
+                        return "#ffc107";
+                    default:
+                        return "#007bff";
+                }
             }
         }
 
         public virtual bool Contains(string query) => Name.ToLower().Contains(query.ToLower()) || Description.ToLower().Contains(query.ToLower());
         public virtual void Log() => Console.Write("Name: {0}\nDescription: {1}\n", Name, Description);
-
     }
 }

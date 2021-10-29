@@ -6,10 +6,8 @@ namespace Library.TodoListApp.Models
 {
     public class TodoTask : TodoItem
     {
-        public string TodoType
-        {
-            get => "Task";
-        }
+        public override string TodoType => "Task";
+        public override string ItemSpecificProps => $"Deadline: {Deadline.ToShortDateString()}\nTask completed: {(IsCompleted ? "Yes" : "No")}";
         public DateTime Deadline { get; set; }
         public bool IsCompleted { get; set; }
         public TodoTask() : base() { }

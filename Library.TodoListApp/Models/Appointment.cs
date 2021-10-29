@@ -3,14 +3,14 @@
 // 10/02/2021
 using System;
 using System.Collections.Generic;
+using System.Linq;
+
 namespace Library.TodoListApp.Models
 {
     public class TodoAppointment : TodoItem
     {
-        public string TodoType
-        {
-            get => "Appointment";
-        }
+        public override string TodoType => "Appointment";
+        public override string ItemSpecificProps => $"Start: {Start.ToShortDateString()}\nStop: {Stop.ToShortDateString()}\nAttendees: {String.Join(", ", Attendees)}";
         public DateTime Start { get; set; }
         public DateTime Stop { get; set; }
         public List<string> Attendees { get; set; }

@@ -1,149 +1,132 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Library.TodoListApp.Models;
-
 
 namespace TodoListApp.ViewModels
 {
     public class DialogViewModel : INotifyPropertyChanged
     {
-        private DateTimeOffset boundStart;
+        private bool _boundIsCompleted;
+        private DateTimeOffset _boundStart;
+        private DateTimeOffset _boundStop;
+        private DateTimeOffset _boundDeadline;
+        private string _attendeesString;
+        private readonly bool _isAppointment;
+        private readonly bool _showCheckBox;
+        public bool BoundIsCompleted
+        {
+            get
+            {
+                if (NewItem is TodoTask newItem)
+                    return newItem.IsCompleted;
+                return _boundIsCompleted;
+            }
+            set
+            {
+                _boundIsCompleted = value;
+                if (NewItem is TodoTask newItem)
+                    newItem.IsCompleted = _boundIsCompleted;
+            }
+        }
         public DateTimeOffset BoundStart
         {
             get
             {
                 if (NewItem is TodoAppointment newItem)
                     return newItem.Start;
-                return boundStart;
+                return _boundStart;
             }
             set
             {
-                boundStart = value;
+                _boundStart = value == DateTimeOffset.MinValue ? _boundStart : value;
                 if (NewItem is TodoAppointment newItem)
-                    newItem.Start = boundStart.Date;
+                    newItem.Start = _boundStart.DateTime;
             }
         }
-        private DateTimeOffset boundStop;
         public DateTimeOffset BoundStop
         {
             get
             {
                 if (NewItem is TodoAppointment newItem)
                     return newItem.Stop;
-                return boundStop;
+                return _boundStop;
             }
             set
             {
-                boundStop = value;
+                _boundStop = value == DateTimeOffset.MinValue? _boundStop: value;
                 if (NewItem is TodoAppointment newItem)
-                    newItem.Stop = boundStop.Date;
+                    newItem.Stop = _boundStop.DateTime;
             }
         }
-        private DateTimeOffset boundDeadline;
         public DateTimeOffset BoundDeadline
         {
             get
             {
                 if (NewItem is TodoTask newItem)
                     return newItem.Deadline;
-                return boundDeadline;
+                return _boundDeadline;
             }
             set
             {
-                boundDeadline = value;
+                _boundDeadline = value == DateTimeOffset.MinValue ? _boundDeadline : value;
                 if(NewItem is TodoTask newItem)
-                    newItem.Deadline = boundDeadline.Date;
+                    newItem.Deadline = _boundDeadline.DateTime;
             }
         }
-        private string attendeesString;
         public string AttendeesString
         {
             get
             {
                 if (NewItem is TodoAppointment newItem)
                     return String.Join(",", newItem.Attendees);
-                return attendeesString;
+                return _attendeesString;
             }
             set
             {
                 if (NewItem is TodoAppointment newItem)
                     newItem.Attendees = value.Split(",").ToList();
-                attendeesString = value;
+                _attendeesString = value;
             }
         }
-
-        public Visibility ShowTask
-        {
-            get => NewItem is TodoTask ? Visibility.Visible : Visibility.Collapsed;
-        }
-        public Visibility ShowAppointment
-        {
-            get => NewItem is TodoAppointment ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        private bool showCheckBox;
-        public Visibility ShowCheckBox
-        {
-            get => showCheckBox ? Visibility.Visible : Visibility.Collapsed;
-        }
+        public Visibility ShowTask => NewItem is TodoTask ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility ShowAppointment => NewItem is TodoAppointment ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility ShowCheckBox => _showCheckBox ? Visibility.Visible : Visibility.Collapsed;
         public TodoItem NewItem { get; set; }
-        private string itemType = "Task";
-        private readonly bool isAppointment = false;
         public bool IsAppointment
         {
-            get => isAppointment;
+            get => _isAppointment;
             set
             {
                 if (value)
-                    NewItem = new TodoAppointment();
+                    NewItem = new TodoAppointment(){Name = NewItem.Name, Description = NewItem.Description, Priority = NewItem.Priority, Start = BoundStart.DateTime, Stop = BoundStop.DateTime, Attendees = AttendeesString.Split(",").ToList()};
                 else
-                    NewItem = new TodoTask();
+                    NewItem = new TodoTask(){ Name = NewItem.Name, Description = NewItem.Description, Priority = NewItem.Priority, Deadline = BoundDeadline.DateTime, IsCompleted = BoundIsCompleted};
                 NotifyPropertyChanged();
-                NotifyPropertyChanged("NewItem");
-                NotifyPropertyChanged("ShowAppointment");
-                NotifyPropertyChanged("ShowTask");
+                NotifyPropertyChanged(nameof(NewItem));
+                NotifyPropertyChanged(nameof(ShowAppointment));
+                NotifyPropertyChanged(nameof(ShowTask));
             }
         }
-        public string ItemType
-        {
-            get => itemType;
-            set
-            {
-                if (value != null && !value.Equals(itemType, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    itemType = value;
-                    if (value.Equals("Task", StringComparison.InvariantCultureIgnoreCase))
-                        NewItem = new TodoTask();
-                    else if (value.Equals("Appointment", StringComparison.InvariantCultureIgnoreCase))
-                        NewItem = new TodoAppointment();
-                    else
-                        NewItem = new TodoItem();
-                    NotifyPropertyChanged();
-                    NotifyPropertyChanged("NewItem");
-                }
-            }
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
         public DialogViewModel()
         {
             NewItem = new TodoTask();
-            showCheckBox = true;
-            BoundDeadline = DateTime.Now;
+            _showCheckBox = true;
+            BoundDeadline = DateTimeOffset.Now;
+            BoundStart = DateTimeOffset.Now;
+            BoundStop = DateTimeOffset.Now;
+            AttendeesString = "";
         }
 
         public DialogViewModel(TodoItem item)
         {
             NewItem = item;
-            showCheckBox = false;
-            if (NewItem is TodoTask) isAppointment = false;
-            else isAppointment= true;
+            _showCheckBox = false;
+            _isAppointment = !(NewItem is TodoTask);
         }
-        public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
