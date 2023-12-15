@@ -1,5 +1,14 @@
-# TodoListApp
-A Todo list created using UWP.
+# CIS-4930 Assignment #3
+
+## About
+
+The second iteration of feature improvements added to the task application showcased in [CIS-4930 Assignment #1](https://github.com/miguel-quezada63/cis-4930-assignment-1).
+
+The added features in this iteration include: 
+- Universal Windows Platform GUI.
+- Save/Load functionality built-in to user's AppData cache.
+- Task priority.
+- Task sorting.
 
 ## Setup Instructions
 
